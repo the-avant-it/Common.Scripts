@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "Script version: 1.0.0:0"
+message=$(echo $@)
+git add .
+git commit -m "${message}"
+git push
+echo "Commit has been pushed!"
