@@ -95,10 +95,14 @@ for zone in zones_selection_enriched:
         #print(content)
 
         for record in content['result']:
+            name = str.replace(record["name"], "." + record["zone_name"], "")
+            if name == record["zone_name"]:
+                name = "@"
+
             if record["type"] in ["A", "AAAA", "CNAME", "TXT"]:
                 zone_export[f"{str.lower(record['type'])}_records"].append({
                     "type": record["type"],
-                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "name": name,
                     "full_name": record["name"],
                     "value": record["content"],
                     "raw_info": record
@@ -106,7 +110,7 @@ for zone in zones_selection_enriched:
             elif record["type"] == "MX":
                 zone_export[f"{str.lower(record['type'])}_records"].append({
                     "type": record["type"],
-                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "name": name,
                     "full_name": record["name"],
                     "value": record["content"],
                     "priority": record["priority"],
@@ -115,7 +119,7 @@ for zone in zones_selection_enriched:
             elif record["type"] == "SRV":
                 zone_export[f"{str.lower(record['type'])}_records"].append({
                     "type": record["type"],
-                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "name": name,
                     "full_name": record["name"],
                     "value": record["content"],
                     "priority": record["priority"],
@@ -126,7 +130,7 @@ for zone in zones_selection_enriched:
             else:
                 zone_export["other_records"].append({
                     "type": record["type"],
-                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "name": name,
                     "full_name": record["name"],
                     "value": record["content"],
                     "raw_info": record

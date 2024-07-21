@@ -27,28 +27,26 @@ print("The file appears to be valid!")
 zone_id = input('Enter yandex DNS zone id: ')
 
 # https://www.sobyte.net/post/2021-06/pitfalls-of-os.popen-function-and-pipe-in-python/
-def popen(command:str) -> str:
+def popen(command:str) -> None:
     with os.popen(command) as p:
         result = p.read()
     
-    print(f"Command: {command} returned: {result}")
-
-    return result    
+        print(f"Command: {command} returned: {result}")
 
 for r in records["a_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} A {r["value"]}" --format=json')
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} A {r["value"]}" --format=json')
 
 for r in records["aaaa_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} AAAA {r["value"]}" --format=json')
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} AAAA {r["value"]}" --format=json')
 
 for r in records["txt_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} TXT {r["value"]}" --format=json')
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} TXT {r["value"]}" --format=json')
 
 for r in records["cname_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} CNAME {r["value"]}" --format=json')    
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} CNAME {r["value"]}" --format=json')    
 
 for r in records["mx_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} MX {r["priority"]} {r["value"]}" --format=json')
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} MX {r["priority"]} {r["value"]}" --format=json')
 
 for r in records["srv_records"]:
-    popen(f'yc dns zone add-records {zone_id} --record="{r["full_name"]} SRV {r["priority"]} {r["value"]}" --format=json')
+    popen(f'yc dns zone add-records {zone_id} --record="{r["name"]} SRV {r["priority"]} {r["value"]}" --format=json')
