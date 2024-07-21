@@ -4,8 +4,8 @@ import requests
 import os
 
 # Set credentials
-vault_url = "https://vault.hostname"
-SECRET_KEY
+vault_url = "https://vault.example.com"
+vault_SECRET_KEY"
 
 def popen(command:str) -> str:
     with os.popen(command) as p:
