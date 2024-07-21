@@ -35,7 +35,7 @@ zones_selection = [int(z) for z in str.split(zones_selection, " ")]
 if len(zones_selection) == 0:
     print("You entered nothing we could understand, please, try again!")
     exit(1)
-elif len(zones_selection) == 1:
+elif len(zones_selection) == 1 and zones_selection[0] == -1:
     if zones_selection[0] == -1:
         print("All zones selected")
         for i, zone in enumerate(response.json()["result"]):
@@ -46,14 +46,14 @@ elif len(zones_selection) == 1:
 else:
     zs = response.json()["result"]
     for z in zones_selection:
-        if z <= 0:
+        if z < 0:
             print("ERROR: Index cant be negative!")
             exit(1)
-        zs[z] 
-        zones_selection_enriched.append({
-            "id": zs[z]['id'],
-            "name": zs[z]['name']
-        })          
+        else:
+            zones_selection_enriched.append({
+                "id": zs[z]['id'],
+                "name": zs[z]['name']
+            })          
 
 for zone in zones_selection_enriched:
     zone_export = {
@@ -62,6 +62,7 @@ for zone in zones_selection_enriched:
         "cname_records": [],
         "txt_records": [],
         "mx_records": [],
+        "srv_records": [],
         "other_records": [],
     }
 
@@ -76,8 +77,11 @@ for zone in zones_selection_enriched:
     if response.status_code != 200:
         print(f"ERROR: {data}")
         exit(1)
-    
-    for page in range(1, data['result_info']['total_pages']):
+    else:
+        print(f"Exporting {data['result_info']['total_count']} records")
+        #print(data)
+
+    for page in range(1, data['result_info']['total_pages'] + 1):
         response = requests.get(
             f"https://api.cloudflare.com/client/v4/zones/{zone['id']}/dns_records",
             headers={"Authorization": f"Bearer {token}"},
@@ -87,30 +91,52 @@ for zone in zones_selection_enriched:
         if response.status_code != 200:
             print(f"ERROR: {content}")     
             exit(1)   
+        
+        #print(content)
 
         for record in content['result']:
             if record["type"] in ["A", "AAAA", "CNAME", "TXT"]:
                 zone_export[f"{str.lower(record['type'])}_records"].append({
                     "type": record["type"],
-                    "name": record["name"],
-                    "value": record["content"]
+                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "full_name": record["name"],
+                    "value": record["content"],
+                    "raw_info": record
                 })
             elif record["type"] == "MX":
                 zone_export[f"{str.lower(record['type'])}_records"].append({
                     "type": record["type"],
-                    "name": record["name"],
-                    "value": record["content"]
+                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "full_name": record["name"],
+                    "value": record["content"],
+                    "priority": record["priority"],
+                    "raw_info": record
                 })    
+            elif record["type"] == "SRV":
+                zone_export[f"{str.lower(record['type'])}_records"].append({
+                    "type": record["type"],
+                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "full_name": record["name"],
+                    "value": record["content"],
+                    "priority": record["priority"],
+                    "weight": record["data"]["weight"],
+                    "port": record["data"]["port"],
+                    "raw_info": record
+                })                    
             else:
                 zone_export["other_records"].append({
                     "type": record["type"],
-                    "name": record["name"],
-                    "value": record["content"]
+                    "name": str.replace(record["name"], record["zone_name"], ""),
+                    "full_name": record["name"],
+                    "value": record["content"],
+                    "raw_info": record
                 })
+        
+        print(f"{content['result_info']['count']} records exported!")
         
     file_name = zone['name'] + ".yaml"
     f = open(file_name, "w")
     f.write(yaml.dump(zone_export))
     f.close()
 
-    print(f"{zone['name']} exported in {file_name}")
+    print(f"{zone['name']} exported to {file_name}")
