@@ -41,7 +41,7 @@ def restore(mount:str, path:str, mount_type:str):
             f = open(fs_path_2, "r")
             data = json.loads(f.read())
             f.close()
-            url_path = f"{path}" if path.startswith("/") else f"/{path}"
+            url_path = f"{path}/{file_name}" if path.startswith("/") else f"/{path}/{file_name}"
             response = requests.request(
                 method="POST",
                 url=f"{vault_url}/v1/{mount}/data{url_path}" if mount_type == "kv2" else f"{vault_url}/v1/{mount}{url_path}",
