@@ -27,13 +27,8 @@ def restore(mount:str, path:str, mount_type:str):
         print(f"Path {fs_path} is empty, skipping")
         return
 
-    # Non leaf
-    if len(dirs) != 0:
-        print(f"Set keys under path {path}")
-        for p in dirs:
-            restore(mount, f"{path}{p}" if path.endswith("/") else f"{path}/{p}", mount_type)
-    # Leaf
-    else:
+    # Has secrets in iself
+    if len(files) != 0:
         print(f"Load variables to {path}")
         for file_name in files:
             fs_path_2 = f"{fs_path}{file_name}" if fs_path.endswith("/") else f"{fs_path}/{file_name}"
@@ -41,16 +36,21 @@ def restore(mount:str, path:str, mount_type:str):
             f = open(fs_path_2, "r")
             data = json.loads(f.read())
             f.close()
-            url_path = f"{path}/{file_name}" if path.startswith("/") else f"/{path}/{file_name}"
+            url_path = f"{path}/{file_name}" if path.startswith("/") else (f"/{path}/{file_name}" if path != "" else f"/{path}{file_name}")
+            url=f"{vault_url}/v1/{mount}/data{url_path}" if mount_type == "kv2" else f"{vault_url}/v1/{mount}{url_path}"
             response = requests.request(
                 method="POST",
-                url=f"{vault_url}/v1/{mount}/data{url_path}" if mount_type == "kv2" else f"{vault_url}/v1/{mount}{url_path}",
+                url=url,
                 headers={"X-Vault-SECRET_KEY},
                 json={"data": data["data"]["data"]}
             )
-            print(f"Code: {response.status_code}; Content: {response.content};")
+            print(f"POST to {url}; Code: {response.status_code}; Content: {response.content};")
             if response.status_code != 200:
-                print("ERROR: NON 200 CODE!")
-                return
-    
+                raise ValueError("NON 200 CODE!")
+    # Contains dirs
+    if len(dirs) != 0:
+        print(f"Set keys under path: {path}")
+        for p in dirs:
+            restore(mount, f"{path}{p}" if path.endswith("/") else f"{path}/{p}", mount_type)
+
 restore(vault_mount, "", vault_mount_type)
