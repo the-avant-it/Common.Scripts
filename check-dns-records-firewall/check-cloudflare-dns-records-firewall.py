@@ -5,7 +5,7 @@ import re
 import os
 import yaml
 
-print("This code uses nmap and curl to check host name availability and if it does not respond it thinks that it is not used.\nSooo.... it may assume that host is not used if you use bot protection or execute script from blacklisted IP")
+print("This code uses nmap and curl to check host name availability and if it responds it thinks that it is open.\nSooo.... it may falselly assume that host is closed if you use bot protection\nSooooo.... you have to disable Super Bot Fight Mode during check")
 
 SECRET_KEY('Input Cloudflare API token: ')
 
@@ -98,19 +98,23 @@ for zone in zones_selection_enriched:
             if name == record["zone_name"]:
                 name = "@"
 
-            if record["type"] in ["A", "AAAA", "CNAME"]:
+            if record["type"] in ["A", "AAAA", "CNAME"] and record['name']:
                 #print(f"Checking {record['name']} => {record['content']}")
 
                 if record["proxied"]:
                     upstream_opened = False
                     cf_opened = False
 
-                    nmap_upstream_80_opened = popen(f"nmap -T5 -p 80 {record['content']} -Pn | grep -E 'open|closed'")
+                    nmap_upstream_80_opened = popen(f"nmap -T5 -p 80 {record['content']} -Pn 2> /dev/null | grep -E 'open|closed'")
                     if not nmap_upstream_80_opened:
-                        nmap_upstream_443_opened = popen(f"nmap -T5 -p 443 {record['content']} -Pn | grep -E 'open|closed'")
+                        nmap_upstream_443_opened = popen(f"nmap -T5 -p 443 {record['content']} -Pn 2> /dev/null | grep -E 'open|closed'")
                     if nmap_upstream_80_opened or nmap_upstream_443_opened:
                         upstream_opened = True
-                    closed = popen(f"curl --silent --output /dev/stderr --write-out \"%{{http_code}}\" https://{record['name']} 2> /dev/null | grep -E '403'")
+                    # 403 = ip filtration or auth
+                    # 530 = Origin DNS error
+                    # 525 = SSL handshake failed
+                    # 401 = Basic auth
+                    closed = popen(f"curl --silent --output /dev/stderr --write-out \"%{{http_code}}\" https://{record['name']} 2> /dev/null | grep -E '403|530|525|401'")
                     if closed:
                         pass
                     else:
@@ -120,9 +124,9 @@ for zone in zones_selection_enriched:
                 else:
                     upstream_opened = False
 
-                    nmap_upstream_well_known_opened = popen(f"nmap -n -T5 --max-rtt-timeout 1s --min-parallelism 100 -p 80,443,22,5432,6432,6379,9092,9094,8080,3000,8083,8082,9000,9001,3306,5000,9090,9100,9187,9200,8001 {record['content']} -Pn | grep -E 'open|closed'")
+                    nmap_upstream_well_known_opened = popen(f"nmap -n -T5 --max-rtt-timeout 1s --min-parallelism 100 -p 80,443,22,5432,6432,6379,9092,9094,8080,3000,8083,8082,9000,9001,3306,5000,9090,9100,9187,9200,8001 {record['content']} -Pn 2> /dev/null | grep -E 'open|closed'")
                     if not nmap_upstream_well_known_opened:
-                        any_opened = popen(f"nmap -n -T5 --max-rtt-timeout 1s --min-parallelism 100 {record['content']} -Pn | grep -E 'open|closed'")
+                        any_opened = popen(f"nmap -n -T5 --max-rtt-timeout 1s --min-parallelism 100 {record['content']} -Pn 2> /dev/null | grep -E 'open|closed'")
                     if nmap_upstream_well_known_opened or any_opened:
                         upstream_opened = True
                     
