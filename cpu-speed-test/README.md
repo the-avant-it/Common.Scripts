@@ -1,1 +1,3 @@
-Requires docker and apt install html-xml-utils
+Requires docker
+
+Run as root!
