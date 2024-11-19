@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Script version: 1.0.1:1"
+./push $@
+./go-to-ci

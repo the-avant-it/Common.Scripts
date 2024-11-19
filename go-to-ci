@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Script version: 1.0.0:0"
+repo_host=$(git config --get remote.origin.url | grep -Po "gitlab\..*?(?=:)") 
+repo_path=$(git config --get remote.origin.url | grep -Po "(?<=:).*?(?=\.git)")
+xdg-open https://$repo_host/$repo_path/-/pipelines
