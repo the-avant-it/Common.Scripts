@@ -6,7 +6,7 @@ apt update && apt install html-xml-utils -y
 
 echo "Test starting, it will take about 5 minutes to finish. It will use docker, so make sure it was installed"
 
-docker run -it --rm davidsarkany/geekbench:6.3.0 &> /tmp/geekbench.txt
+docker run --rm davidsarkany/geekbench:6.3.0 &> /tmp/geekbench.txt
 cat /tmp/geekbench.txt | grep -oE "https://browser.geekbench.com/v6/cpu/[0-9]+" | head -1 > /tmp/geekbench.link.txt
 curl $(cat /tmp/geekbench.link.txt) -o /tmp/geekbench.link.html
 
