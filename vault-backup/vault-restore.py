@@ -42,7 +42,7 @@ def restore(mount:str, path:str, mount_type:str):
                 method="POST",
                 url=url,
                 headers={"X-Vault-SECRET_KEY},
-                json={"data": data["data"] if mount_type == "kv1" else data["data"]["data"]}
+                json=data["data"] if mount_type == "kv1" else {"data": data["data"]["data"] }
             )
             print(f"POST to {url}; Code: {response.status_code}; Content: {response.content};")
             if response.status_code not in [200, 204]:
