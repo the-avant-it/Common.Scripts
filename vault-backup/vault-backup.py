@@ -48,5 +48,5 @@ def backup(mount:str, path:str, mount_type:str):
 #backup("main-ci-apps", "", "kv2")
 backup("secret", "", "kv1")
 backup("instance-private-keys", "", "kv2")
-#backup("main-ci", "", "kv2")
+backup("main-ci", "", "kv2")
 #backup("cicd", "", "kv2")
