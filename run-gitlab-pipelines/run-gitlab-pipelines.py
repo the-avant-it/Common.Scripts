@@ -1,16 +1,19 @@
 #!/bin/python3
 import gitlab
 
+gitlab_url = input("Please enter a gitlab_url: ")
+print("You entered:", gitlab_url)
+
 branch_name = input("Please enter a branch_name: ")
 print("You entered:", branch_name)
 
-private_SECRET_KEY("Please enter a private_token: ")
+private_token = input("Please enter a private_token: ")
 print("You entered:", private_token)
 
 # private_SECRET_KEY("Please CI_INFRASTRUCTURE_PROVIDER: ")
 # print("You entered:", private_token)
 
-gl = gitlab.Gitlab("https://gitlab.hostname", private_SECRET_KEY)
+gl = gitlab.Gitlab(gitlab_url, private_token)
 groups = gl.groups.list()
 
 subgroup = gl.groups.get('hostname/main/backend')
