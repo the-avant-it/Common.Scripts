@@ -7,7 +7,7 @@ import yaml
 
 print("This code uses nmap and curl to check host name availability and if it does not respond it thinks that it is not used.\nSooo.... it may assume that host is not used if you use bot protection or execute script from blacklisted IP")
 
-SECRET_KEY('Input Cloudflare API token: ')
+token = input('Input Cloudflare API token: ')
 
 response = requests.get(
     f"https://api.cloudflare.com/client/v4/user/tokens/verify",
