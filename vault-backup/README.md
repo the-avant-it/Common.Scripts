@@ -1,8 +1,11 @@
-Скрипт для бекапа волта
+Скрипт для бекапа и рестора волта
 
 Бекапит в директорию vault-backup
 
 Этот скрипт также подходит для копирования части переменных из 1 места в другое (например, когда нужно сделать 2 окружения)
 
-Error: route entry not found.
-Fix: create mount before restore!
+# Possible problems
+
+## Error: route entry not found.
+
+Solution: create mount before restore!

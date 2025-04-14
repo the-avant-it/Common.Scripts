@@ -7,7 +7,7 @@ from os import listdir
 from os.path import isfile, isdir, join
 
 vault_url = input('Input Vault url: ')
-vault_SECRET_KEY('Input Vault root token: ')
+vault_root_token = input('Input Vault root token: ')
 vault_mount = input('Input Vault mount to restore (e.g. main-ci-apps): ')
 vault_mount_type = input('Input Vault mount type (kv2 or kv1): ')
 
@@ -41,7 +41,7 @@ def restore(mount:str, path:str, mount_type:str):
             response = requests.request(
                 method="POST",
                 url=url,
-                headers={"X-Vault-SECRET_KEY},
+                headers={"X-Vault-Token": vault_root_token},
                 json=data["data"] if mount_type == "kv1" else {"data": data["data"]["data"] }
             )
             print(f"POST to {url}; Code: {response.status_code}; Content: {response.content};")

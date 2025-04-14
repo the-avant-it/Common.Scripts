@@ -4,7 +4,7 @@ import requests
 import os
 
 vault_url = input('Input Vault url: ')
-vault_SECRET_KEY('Input Vault root token: ')
+vault_root_token = input('Input Vault root token: ')
 
 def popen(command:str) -> str:
     with os.popen(command) as p:
@@ -15,7 +15,7 @@ def backup(mount:str, path:str, mount_type:str):
     response = requests.request(
         method="GET",
         url=f"{vault_url}/v1/{mount}/metadata/{path}?list=true" if mount_type == "kv2" else f"{vault_url}/v1/{mount}/{path}?list=true",
-        headers={"X-Vault-SECRET_KEY},
+        headers={"X-Vault-Token":vault_root_token},
     )
     print(response.content)
     response_dict = response.json()
@@ -37,7 +37,7 @@ def backup(mount:str, path:str, mount_type:str):
         response = requests.request(
             method="GET",
             url=f"{vault_url}/v1/{mount}/data/{path}" if mount_type == "kv2" else f"{vault_url}/v1/{mount}/{path}",
-            headers={"X-Vault-SECRET_KEY},
+            headers={"X-Vault-Token":vault_root_token},
         )
         print(response.content)
         f = open(fs_path, "w")
