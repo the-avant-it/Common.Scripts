@@ -5,7 +5,7 @@ import re
 import os
 import yaml
 
-SECRET_KEY('Input Cloudflare API token: ')
+token = input('Input Cloudflare API token: ')
 
 response = requests.get(
     f"https://api.cloudflare.com/client/v4/user/tokens/verify",
